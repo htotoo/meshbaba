@@ -79,10 +79,7 @@ void app_main(void) {
     ESP_LOGI(TAG, "WiFi AP initialized. SSID: %s, Password: %s", ssid, password);
 
     ESP_LOGI(TAG, "Loading radio config.");
-    uint8_t my_p_key[32] = MYKEY;
 
-    memcpy(mtCompact.getMyNodeInfo()->private_key, my_p_key, 32);
-    MtCompactHelpers::RegenerateOrGeneratePrivateKey(*mtCompact.getMyNodeInfo());
     mtCompact.loadNodeDb();
     mtCompact.setOkToMqtt(true);
     ESP_LOGI(TAG, "Radio initializing...");
@@ -93,10 +90,10 @@ void app_main(void) {
     mtCompact.setStealthMode(false);  // stealth mode, we don't
     mtCompact.setSendEnabled(true);   // we want to send packets
     mtCompact.setOnNodeInfoMessage([](MCT_Header& header, MCT_NodeInfo& nodeinfo, bool needReply, bool newNode) {
-        if (nodeinfo.role == 0) {
+        if (nodeinfo.role == 0 && newNode) {
             std::string sender = nodeinfo.short_name;
             std::string reply = sender + "! Kerlek gondold at, hogy biztosan CLIENT role kell-e neked. https://meshtastic.creativo.hu";
-            mtCompact.sendTextMessage(reply, header.srcnode, 0, MCT_MESSAGE_TYPE_TEXT, 0, 0, false, 0);
+            // mtCompact.sendTextMessage(reply, header.srcnode, 0, MCT_MESSAGE_TYPE_TEXT, 0, 0, false, 0);
             ESP_LOGI(TAG, "Sent role change suggestion to %s", sender.c_str());
         }
     });
@@ -146,13 +143,16 @@ void app_main(void) {
     std::string long_name = "Hungarian Info Node";                                                       // long name
     MtCompactHelpers::NodeInfoBuilder(mtCompact.getMyNodeInfo(), 0xabbababa, short_name, long_name, 1);  // random nodeinfo
     mtCompact.getMyNodeInfo()->role = 1;
+    uint8_t my_p_key[32] = MYKEY;
+    memcpy(mtCompact.getMyNodeInfo()->private_key, my_p_key, 32);
+    MtCompactHelpers::RegenerateOrGeneratePrivateKey(*mtCompact.getMyNodeInfo());
     mtCompact.setPrimaryChanByHash(31);
     MtCompactHelpers::PositionBuilder(mtCompact.my_position, 47.486, 19.078, 100);
     uint32_t timer = 0;  // 0.1 second timer
     mtCompact.sendMyNodeInfo();
     while (1) {
         timer++;
-        if (timer % 600000 == 0) {
+        if (timer % (1 * 60 * 10) == 0) {
             mtCompact.sendMyNodeInfo();
         }
         if (mtCompact.nodeinfo_db.needsSave()) {
