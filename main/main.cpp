@@ -146,6 +146,7 @@ void app_main(void) {
     std::string long_name = "Hungarian Info Node";                                                       // long name
     MtCompactHelpers::NodeInfoBuilder(mtCompact.getMyNodeInfo(), 0xabbababa, short_name, long_name, 1);  // random nodeinfo
     mtCompact.getMyNodeInfo()->role = 1;
+    mtCompact.setPrimaryChanByHash(31);
     MtCompactHelpers::PositionBuilder(mtCompact.my_position, 47.486, 19.078, 100);
     uint32_t timer = 0;  // 0.1 second timer
     mtCompact.sendMyNodeInfo();
