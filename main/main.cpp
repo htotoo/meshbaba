@@ -120,7 +120,7 @@ void app_main(void) {
         }
         if (needsPongReply(message.text)) {
             std::string reply = "Pong! ";
-            int8_t hops = header.hop_limit - header.hop_start;
+            int8_t hops = header.hop_start - header.hop_limit;
             if (hops > 0) {
                 reply += " (hops: " + std::to_string(hops) + ")";
             } else {
