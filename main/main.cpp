@@ -93,7 +93,7 @@ void app_main(void) {
         if (nodeinfo.role == 0 && newNode) {
             std::string sender = nodeinfo.short_name;
             std::string reply = sender + "! Kerlek gondold at, hogy biztosan CLIENT role kell-e neked. https://meshtastic.creativo.hu";
-            // mtCompact.sendTextMessage(reply, header.srcnode, 0, MCT_MESSAGE_TYPE_TEXT, 0, 0, false, 0);
+            mtCompact.sendTextMessage(reply, header.srcnode, 0, MCT_MESSAGE_TYPE_TEXT, 0, 0, false, 0);
             ESP_LOGI(TAG, "Sent role change suggestion to %s", sender.c_str());
         }
     });
@@ -152,7 +152,7 @@ void app_main(void) {
     mtCompact.sendMyNodeInfo();
     while (1) {
         timer++;
-        if (timer % (1 * 60 * 10) == 0) {
+        if (timer % (30 * 60 * 10) == 0) {
             mtCompact.sendMyNodeInfo();
         }
         if (mtCompact.nodeinfo_db.needsSave()) {
